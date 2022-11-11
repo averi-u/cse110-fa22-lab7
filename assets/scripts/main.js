@@ -54,6 +54,31 @@ function initializeServiceWorker() {
   // B5. TODO - In the event that the service worker registration fails, console
   //            log that it has failed.
   // STEPS B6 ONWARDS WILL BE IN /sw.js
+  window.addEventListener ('load', (event) => {
+    const registerServiceWorker = async () => {
+      if ("serviceWorker" in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register("../sw.js", {
+            scope: "/",
+          });
+          if (registration.installing) {
+            console.log("Service worker installing");
+          } else if (registration.waiting) {
+            console.log("Service worker installed");
+          } else if (registration.active) {
+            console.log("Service worker active");
+          }
+        } catch (error) {
+          console.error(`Registration failed with ${error}`);
+        }
+      }
+    };
+    registerServiceWorker();
+  });
+  
+  // …
+  
+  
 }
 
 /**
@@ -68,9 +93,9 @@ async function getRecipes() {
   // EXPOSE - START (All expose numbers start with A)
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
-  let localRecipes = localStorage.getItem("recipe:);
-  if (localRecipes){
-    return localRecipes;
+  let recipes = localStorage.getItem("recipe");
+  if (recipes){
+    return recipes;
   }
   /**************************/
   // The rest of this method will be concerned with requesting the recipes
@@ -82,9 +107,10 @@ async function getRecipes() {
   //            take two parameters - resolve, and reject. These are functions
   //            you can call to either resolve the Promise or Reject it.
   /**************************/
-  var recipes = [];
+  recipes = [];
 
-  const promiseA = new Promise(executorPromise());
+  // var promise = new Promise(executorPromise);
+  return new Promise(executorPromise);
 
   // A4-A11 will all be *inside* the callback function we passed to the Promise
   // we're returning
@@ -108,7 +134,7 @@ async function getRecipes() {
   //            resolve() method.
   // A10. TODO - Log any errors from catch using console.error
   // A11. TODO - Pass any errors to the Promise's reject() function
-  function executorPromise(){
+  async function executorPromise(resolve, reject){
     for (let i = 0; i<RECIPE_URLS.length; i++){
       try{
         let nextRecipe = await fetch(RECIPE_URLS[i]);
@@ -117,13 +143,17 @@ async function getRecipes() {
       } catch(err){
         console.error(err);
         //reject function
+        reject(err);
       }
     }
     if (recipes.length == RECIPE_URLS.length){
       saveRecipesToStorage(recipes);
       //pass to resolve method
+      resolve(recipes);
     }
   }
+
+
 }
 
 /**
