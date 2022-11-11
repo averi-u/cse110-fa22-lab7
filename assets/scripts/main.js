@@ -106,7 +106,13 @@ async function getRecipes() {
   // A10. TODO - Log any errors from catch using console.error
   // A11. TODO - Pass any errors to the Promise's reject() function
   function executorPromise(){
-    
+    for (let i =0; i<RECIPE_URLS.length; i++){
+      try{
+
+      } catch{
+        
+      }
+    }
   }
 }
 
